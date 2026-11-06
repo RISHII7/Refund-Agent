@@ -63,10 +63,11 @@ def get_today_date() -> str:
     return date.today().isoformat()
 
 
-print(get_user_purchase_history.invoke("user123"))
-book = PurchaseItem(name="book")
-pen = PurchaseItem(name="pen")
-print(calculate_right_refund.invoke({"user":"user123",
-                                    "items":[book,pen]}))
-print(issue_refund_ticket.invoke({"user":"user123",  "refund_amount":30}))
-print(get_today_date.invoke("user123"))
+# if __name__ == "__main__":
+#     print(get_user_purchase_history.invoke("user123"))
+#     book = PurchaseItem(name="book")
+#     pen = PurchaseItem(name="pen")
+#     print(calculate_right_refund.invoke({"user":"user123",
+#                                         "items":[book,pen]}))
+#     print(issue_refund_ticket.invoke({"user":"user123",  "refund_amount":30}))
+#     print(get_today_date.invoke({}))
