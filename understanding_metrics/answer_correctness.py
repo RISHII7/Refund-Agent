@@ -101,7 +101,6 @@ metric = GEval(
     ],
     threshold=0.8,
     model=eval_model,
-    include_reason=True,
     verbose_mode=True,
 )
 
@@ -115,3 +114,4 @@ evaluate(
         write_cache=False,
     ),
 )
+
