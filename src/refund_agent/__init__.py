@@ -1,2 +1,5 @@
+from agent.agent import run_conversation
+
 def main() -> None:
-    print("Hello from refund-agent!")
+    run_conversation()
+

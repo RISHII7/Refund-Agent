@@ -10,6 +10,7 @@ from langchain.agents import create_agent
 from deepeval import evaluate
 from deepeval.dataset import EvaluationDataset, Golden
 from deepeval.metrics import ToolCorrectnessMetric
+from deepeval.evaluate import CacheConfig
 from deepeval.test_case import (
     LLMTestCase,
     ToolCall,
@@ -18,8 +19,10 @@ from deepeval.test_case import (
 
 if os.getenv("OPENAI_API_KEY"):
     agent_model = "openai:gpt-4"
+    eval_model = "gpt-4o"
 else:
     from agent.models import model as agent_model
+    from evaluations.model import eval_model
 
 
 # Step 1: Define tool
@@ -113,6 +116,7 @@ for golden in dataset.goldens:
 # Step 5: Configure metric
 metric = ToolCorrectnessMetric(
     threshold=1.0,
+    model=eval_model,
     evaluation_params=[
         ToolCallParams.INPUT_PARAMETERS
     ],
@@ -126,4 +130,8 @@ metric = ToolCorrectnessMetric(
 evaluate(
     test_cases=dataset.test_cases,
     metrics=[metric],
+    cache_config=CacheConfig(
+        use_cache=False,
+        write_cache=False,
+    ),
 )

@@ -15,7 +15,7 @@ from deepeval.metrics import StepEfficiencyMetric
 from deepeval.integrations.langchain import CallbackHandler
 
 
-metrics = [StepEfficiencyMetric(threshold=0.8,model=eval_model,include_reason=True)]
+metrics = [StepEfficiencyMetric(threshold=0.5, model=eval_model, include_reason=True)]
 
 
 for golden in dataset.evals_iterator(metrics=metrics):

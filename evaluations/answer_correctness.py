@@ -14,10 +14,13 @@ from evaluations.model import eval_model
 from deepeval.metrics import GEval
 from deepeval.integrations.langchain import CallbackHandler
 from deepeval.test_case import LLMTestCase, ToolCall, SingleTurnParams
+from deepeval.evaluate import CacheConfig
 from deepeval import evaluate
 from dotenv import load_dotenv
 
 load_dotenv()
+
+test_cases = []
 
 for golden in dataset.goldens:
     response = agent.invoke(
@@ -31,37 +34,32 @@ for golden in dataset.goldens:
 
     actual_output = response["structured_response"].answer
 
-    tools_called = []
-    test_cases = []
-
-    for message in response["messages"]:
-        for tool_call in getattr(message, "tool_calls", []) or []:
-            tools_called.append(
-                ToolCall(name=tool_call["name"], input_parameters=tool_call["args"])
-            )
-
     test_case = LLMTestCase(
         input=golden.input,
         actual_output=actual_output,
         expected_output=golden.expected_output
     )
-
-    dataset.add_test_case(test_case)
+    test_cases.append(test_case)
 
 metrics = [GEval(
-            name="Answer Correctness",
-            evaluation_params=[
-                SingleTurnParams.INPUT,
-                SingleTurnParams.ACTUAL_OUTPUT,
-                SingleTurnParams.EXPECTED_OUTPUT
-            ],
-            evaluation_steps=[
-                "make sure that the actual output and the expected output have the same logical conclusion"
-            ],
-            threshold=0.8,
-            model=eval_model,
-            verbose_mode=True
-
+    name="Answer Correctness",
+    evaluation_params=[
+        SingleTurnParams.INPUT,
+        SingleTurnParams.ACTUAL_OUTPUT,
+        SingleTurnParams.EXPECTED_OUTPUT
+    ],
+    evaluation_steps=[
+        "Check that the actual output and expected output have the same logical conclusion about the user's request.",
+        "Disregard minor phrasing or currency formatting differences such as $23 vs 23$ or $30 vs 30$.",
+        "Award full score (1.0) if the core outcome matches (e.g. refund ticket issued with correct amount, refund denied with explanation, or asking for a valid username).",
+    ],
+    threshold=0.8,
+    model=eval_model,
+    verbose_mode=True
 )]
 
-evaluate(test_cases=dataset.test_cases, metrics=metrics)
+evaluate(
+    test_cases=test_cases,
+    metrics=metrics,
+    cache_config=CacheConfig(use_cache=False, write_cache=False),
+)

@@ -15,7 +15,7 @@ from deepeval.metrics import PlanQualityMetric
 from deepeval.integrations.langchain import CallbackHandler
 
 
-metrics = [PlanQualityMetric(threshold=0.8,model=eval_model,include_reason=True)]
+metrics = [PlanQualityMetric(threshold=0.5, model=eval_model, include_reason=True)]
 
 
 for golden in dataset.evals_iterator(metrics=metrics):

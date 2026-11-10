@@ -14,10 +14,13 @@ from evaluations.model import eval_model
 from deepeval.metrics import ToolCorrectnessMetric
 from deepeval.integrations.langchain import CallbackHandler
 from deepeval.test_case import LLMTestCase, ToolCall
+from deepeval.evaluate import CacheConfig
 from deepeval import evaluate
 from dotenv import load_dotenv
 
 load_dotenv()
+
+test_cases = []
 
 for golden in dataset.goldens:
     response = agent.invoke(
@@ -32,10 +35,10 @@ for golden in dataset.goldens:
     actual_output = response["structured_response"].answer
 
     tools_called = []
-    test_cases = []
-
     for message in response["messages"]:
         for tool_call in getattr(message, "tool_calls", []) or []:
+            if tool_call["name"] == "Answer":
+                continue
             tools_called.append(
                 ToolCall(name=tool_call["name"], input_parameters=tool_call["args"])
             )
@@ -46,9 +49,12 @@ for golden in dataset.goldens:
         tools_called=tools_called,
         expected_tools=golden.expected_tools
     )
+    test_cases.append(test_case)
 
-    dataset.add_test_case(test_case)
+metrics = [ToolCorrectnessMetric(threshold=0.8, model=eval_model, include_reason=True)]
 
-metrics = [ToolCorrectnessMetric(threshold=0.8,model=eval_model,include_reason=True)]
-
-evaluate(test_cases=dataset.test_cases, metrics=metrics)
+evaluate(
+    test_cases=test_cases,
+    metrics=metrics,
+    cache_config=CacheConfig(use_cache=False, write_cache=False),
+)
