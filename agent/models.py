@@ -1,8 +1,13 @@
+import os
 from dotenv import load_dotenv
-from langchain.chat_models import init_chat_model
+from langchain_nvidia_ai_endpoints import ChatNVIDIA
 
 load_dotenv()
-model = init_chat_model(model="gemini-2.5-flash", model_provider="google_genai")
 
-# response = model.invoke("Tell me something about sun in 1 line")
-# print(response.content)
+model = ChatNVIDIA(
+    model="nvidia/nemotron-3.5-bolt-e4b",
+    api_key=os.getenv("NVIDIA_API_KEY"),
+    temperature=0.0,
+    max_tokens=2048,
+    model_kwargs={"chat_template_kwargs": {"enable_thinking": True}},
+)

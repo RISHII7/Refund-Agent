@@ -1,10 +1,12 @@
 from pydantic import BaseModel, Field
 
 class Answer(BaseModel):
-    answer:str = Field(description="the answer that is needed for the user question")
-    conversation:bool = Field(description="This is an indicator to know if the conversation" \
-    "should still continue or no. if the agent has made the decision about the refund this should be False" \
-    "if the conversation still need more talk then it's True", default=True)
+    answer: str = Field(description="The final response message to show the customer once all required actions and tool calls are finished. Must include the refund amount if a refund was issued.")
+    conversation: bool = Field(
+        description="Set to False when the customer's request is resolved (refund ticket issued, refund denied, or purchase history provided). "
+        "Set to True ONLY if the customer gave an invalid username and you must ask for their username again.",
+        default=False
+    )
 
 class PurchaseItem(BaseModel):
-    name: str = Field(description="name of the item puchased")
+    name: str = Field(description="name of the item purchased")
